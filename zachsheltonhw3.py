@@ -1,2 +1,101 @@
-print("hello")
-print("yo")
+###
+# This code is written by Dr. Fitz and provided to students taking CIS5400
+# at Florida Institute of Technology.
+# Do not copy or reproduce without permission
+###
+
+from lxml import html
+import requests
+
+
+def get_html(url):
+    """
+    This function extracts the html code from a url
+    :param url: 
+    :return: html code from the web page referenced by url
+    """
+    response = requests.get(url)  # get page data from server, block redirects
+    source_code = response.content  # get string of source code from response
+    return source_code
+
+
+def get_data_table(source_code):
+    """
+    This function creates a 2-D list of the following fields:
+    [president_name, tenure, speech_link, speech_date, speech]
+    The speech_date and speech are currently left blank.
+    :param source_code: the html source code extracted from a url
+    :return: a 2-D Python list or table
+    """
+    data_table = []
+    speech_table = None
+    trs = None
+    html_elem = html.document_fromstring(source_code)  # make HTML element object
+    tables = html_elem.cssselect("table") # select the table element on the page
+
+    # if you find a table, initialize the speech table to the first table
+    if len(tables) > 0:
+        speech_table = tables[0]
+
+    # if you find the speech table, select its rows
+    if speech_table is not None:
+        trs = speech_table.cssselect("tr")
+
+    # If you find rows in the table, go through each row
+    # and process the data. Skip the header row (start at row 1)
+    if trs is not None:
+        for i in range(1, len(trs)):
+            tr = trs[i]
+            tds = tr.cssselect("td")
+            president_name = ""
+
+            # simple check to make sure the row has president name and speech url
+            if len(tds) == 12:
+                first_cell_data = tds[0].text_content().strip()
+                tenure = tds[1].text_content().strip()
+                # get the link element for the link to the speech
+                speech_link_elmnt = tds[2].cssselect("a")
+                speech_link = ""
+                speech_date = ""
+                speech = ""
+
+                if len(first_cell_data) > 0:
+                    president_name = first_cell_data
+
+                if len(speech_link_elmnt) > 0:
+                    speech_link = speech_link_elmnt[0].get("href")
+
+                if len(president_name) > 0 and len(speech_link) > 0:
+                    data_table.append([president_name, tenure, speech_link, speech_date, speech])
+    return data_table
+
+
+def scrape_data(url):
+    """
+    :param url: the url to 
+    :return: 
+    """
+    return get_data_table(get_html(url))
+
+def find_speech(data_table):
+    url = data_table[2][2]
+    html = get_html(url)
+    #speech = html_elem.cssselect("field-docs-content")
+    print(html)
+
+def main():
+    """
+    The main driver of the program.
+    It uses the base link to The American Presidency Project
+    at UC Santa Barbara to extract SOU addresses
+    """
+    url = "https://www.presidency.ucsb.edu/" \
+          "documents/presidential-documents-archive-guidebook/" \
+          "annual-messages-congress-the-state-the-union"
+    data_table = scrape_data(url)
+    find_speech(data_table)
+
+
+
+# call the main function to run the program
+main()
