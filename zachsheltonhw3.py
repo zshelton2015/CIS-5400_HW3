@@ -79,6 +79,12 @@ def scrape_data(url):
     return get_data_table(get_html(url))
 
 def find_speech(data_table):
+    """
+    :param data_table
+    :return: Nothing
+    This function finds the date and speech content via the webpage in data[4] and a datetime object in
+    data[3](data = each row of data_table)
+    """
     for data in data_table:
         url = data[2]
         html_elem = html.document_fromstring(get_html(url))
@@ -86,9 +92,20 @@ def find_speech(data_table):
         date = dateparser.parse(date_r[0].text_content())
         val  = html_elem.find_class("field-docs-content")
         speech = val[0].text_content()
-        data[3] = data
+        data[3] = date
         data[4] =speech
     return 0
+def write_csv(data_table):
+    f = open("SOU_data.csv", 'w+')
+    for data in data_table:
+        for val in data:
+            if val != data[-1]:
+                f.write("%s, " % str(val))
+            else:
+                f.write("%s\n" % str(val))
+    f.close()
+    return 0
+
 def main():
     """
     The main driver of the program.
@@ -100,8 +117,10 @@ def main():
           "annual-messages-congress-the-state-the-union"
     data_table = scrape_data(url)
     find_speech(data_table)
-    f = file.open("SOU_data.txt", 'w+')
-    json.dump(data_table,f)
+    """
+    Two for loops writes values to .c
+    """
+    write_csv(data_table)
 
 
 
