@@ -4,9 +4,10 @@
 # Do not copy or reproduce without permission
 ###
 
-from lxml import html
+from lxml import html , cssselect
+import dateparser
 import requests
-
+import json
 
 def get_html(url):
     """
@@ -78,11 +79,16 @@ def scrape_data(url):
     return get_data_table(get_html(url))
 
 def find_speech(data_table):
-    url = data_table[2][2]
-    html = get_html(url)
-    #speech = html_elem.cssselect("field-docs-content")
-    print(html)
-
+    for data in data_table:
+        url = data[2]
+        html_elem = html.document_fromstring(get_html(url))
+        date_r = html_elem.find_class("field-docs-start-date-time")
+        date = dateparser.parse(date_r[0].text_content())
+        val  = html_elem.find_class("field-docs-content")
+        speech = val[0].text_content()
+        data[3] = data
+        data[4] =speech
+    return 0
 def main():
     """
     The main driver of the program.
@@ -94,6 +100,8 @@ def main():
           "annual-messages-congress-the-state-the-union"
     data_table = scrape_data(url)
     find_speech(data_table)
+    f = file.open("SOU_data.txt", 'w+')
+    json.dump(data_table,f)
 
 
 
