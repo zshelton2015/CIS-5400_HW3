@@ -4,10 +4,12 @@
 # Do not copy or reproduce without permission
 ###
 
-from lxml import html , cssselect
+import json
 import dateparser
 import requests
-import json
+from lxml import html
+
+
 
 def get_html(url):
     """
@@ -32,7 +34,7 @@ def get_data_table(source_code):
     speech_table = None
     trs = None
     html_elem = html.document_fromstring(source_code)  # make HTML element object
-    tables = html_elem.cssselect("table") # select the table element on the page
+    tables = html_elem.cssselect("table")  # select the table element on the page
 
     # if you find a table, initialize the speech table to the first table
     if len(tables) > 0:
@@ -78,33 +80,32 @@ def scrape_data(url):
     """
     return get_data_table(get_html(url))
 
+
 def find_speech(data_table):
     """
     :param data_table
     :return: Nothing
-    This function finds the date and speech content via the webpage in data[4] and a datetime object in
+    This function finds the date and speech content via the webpage in data[4] and a datetime string in
     data[3](data = each row of data_table)
     """
     for data in data_table:
         url = data[2]
         html_elem = html.document_fromstring(get_html(url))
-        date_r = html_elem.find_class("field-docs-start-date-time")
-        date = dateparser.parse(date_r[0].text_content())
-        val  = html_elem.find_class("field-docs-content")
+        date_r = html_elem.cssselect('[class="date-display-single"]')
+        date = str(dateparser.parse(date_r[0].text_content()))
+        val = html_elem.cssselect('[class="field-docs-content"]')
         speech = val[0].text_content()
         data[3] = date
-        data[4] =speech
+        data[4] = speech
     return 0
+
+
 def write_csv(data_table):
-    f = open("SOU_data.csv", 'w+')
-    for data in data_table:
-        for val in data:
-            if val != data[-1]:
-                f.write("%s, " % str(val))
-            else:
-                f.write("%s\n" % str(val))
+    f = open("SOU_data.txt", 'w+')
+    json.dump(data_table,f)
     f.close()
     return 0
+
 
 def main():
     """
@@ -121,7 +122,6 @@ def main():
     Two for loops writes values to .c
     """
     write_csv(data_table)
-
 
 
 # call the main function to run the program
