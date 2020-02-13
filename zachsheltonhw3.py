@@ -96,7 +96,7 @@ def find_speech(data_table):
         val = html_elem.cssselect('[class="field-docs-content"]')
         speech = val[0].text_content()
         data[3] = date
-        data[4] = speech
+        data[4] = speech.strip("  ")
     return 0
 
 def clean_speech(data_table):
