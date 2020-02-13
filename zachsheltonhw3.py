@@ -99,8 +99,18 @@ def find_speech(data_table):
         data[4] = speech
     return 0
 
+def clean_speech(data_table):
+    for data in data_table:
+        speech = data[4]
+        lines = speech.splitlines()
+        n_speech = ""
+        for line in lines:
+            n_speech = n_speech + line
+        data[4]=""
+        data[4]=n_speech
+    return data_table
 
-def write_csv(data_table):
+def write_txt(data_table):
     f = open("SOU_data.txt", 'w+')
     json.dump(data_table,f)
     f.close()
@@ -118,10 +128,11 @@ def main():
           "annual-messages-congress-the-state-the-union"
     data_table = scrape_data(url)
     find_speech(data_table)
+    clean_speech(data_table)
     """
     Two for loops writes values to .c
     """
-    write_csv(data_table)
+    write_txt(data_table)
 
 
 # call the main function to run the program
