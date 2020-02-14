@@ -10,7 +10,6 @@ import requests
 from lxml import html
 
 
-
 def get_html(url):
     """
     This function extracts the html code from a url
@@ -91,13 +90,15 @@ def find_speech(data_table):
     for data in data_table:
         url = data[2]
         html_elem = html.document_fromstring(get_html(url))
-        date_r = html_elem.cssselect('[class="date-display-single"]')
+        date_r = html_elem.cssselect('[class="field-docs-start-date-time"]')
+        print(date_r[0].text_content())
         date = str(dateparser.parse(date_r[0].text_content()))
         val = html_elem.cssselect('[class="field-docs-content"]')
         speech = val[0].text_content()
         data[3] = date
         data[4] = speech.strip("  ")
     return 0
+
 
 def clean_speech(data_table):
     for data in data_table:
@@ -106,13 +107,14 @@ def clean_speech(data_table):
         n_speech = ""
         for line in lines:
             n_speech = n_speech + line
-        data[4]=""
-        data[4]=n_speech
+        data[4] = ""
+        data[4] = n_speech
     return data_table
+
 
 def write_txt(data_table):
     f = open("SOU_data.txt", 'w+')
-    json.dump(data_table,f)
+    json.dump(data_table, f)
     f.close()
     return 0
 
