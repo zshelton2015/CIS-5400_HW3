@@ -98,7 +98,7 @@ def find_speech(data_table):
         data[3] = date
         data[4] = speech.strip("  ")
     return 0
-
+#Commit me
 
 def clean_speech(data_table):
     for data in data_table:
