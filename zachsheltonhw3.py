@@ -8,6 +8,7 @@ import json
 import dateparser
 import requests
 from lxml import html
+from datetime import datetime as date
 
 
 def get_html(url):
@@ -80,7 +81,7 @@ def scrape_data(url):
     return get_data_table(get_html(url))
 
 
-def find_speech(data_table):
+def find_speech_date(data_table):
     """
     :param data_table
     :return: Nothing
@@ -92,13 +93,13 @@ def find_speech(data_table):
         html_elem = html.document_fromstring(get_html(url))
         date_r = html_elem.cssselect('[class="field-docs-start-date-time"]')
         print(date_r[0].text_content())
-        date = str(dateparser.parse(date_r[0].text_content()))
+        date_obj = dateparser.parse(date_r[0].text_content())
         val = html_elem.cssselect('[class="field-docs-content"]')
         speech = val[0].text_content()
-        data[3] = date
+        data[3] = date_obj.strftime('%')
         data[4] = speech.strip("  ")
     return 0
-#Commit me
+#Commit me1
 
 def clean_speech(data_table):
     for data in data_table:
