@@ -91,15 +91,13 @@ def find_speech_date(data_table):
     for data in data_table:
         url = data[2]
         html_elem = html.document_fromstring(get_html(url))
-        date_r = html_elem.cssselect('[class="field-docs-start-date-time"]')
-        print(date_r[0].text_content())
-        date_obj = dateparser.parse(date_r[0].text_content())
+        date_r = html_elem.cssselect('[class="date-display-single"]')
+        date_obj = dateparser.parse(date_r[0].get("content"))
         val = html_elem.cssselect('[class="field-docs-content"]')
         speech = val[0].text_content()
-        data[3] = date_obj.strftime('%')
+        data[3] = date_obj.strftime('%x %X')
         data[4] = speech.strip("  ")
     return 0
-#Commit me1
 
 def clean_speech(data_table):
     for data in data_table:
@@ -130,7 +128,7 @@ def main():
           "documents/presidential-documents-archive-guidebook/" \
           "annual-messages-congress-the-state-the-union"
     data_table = scrape_data(url)
-    find_speech(data_table)
+    find_speech_date(data_table)
     clean_speech(data_table)
     """
     Two for loops writes values to .c
